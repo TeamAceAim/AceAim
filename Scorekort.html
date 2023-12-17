@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scorekortapp - Rundesystem</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #444444;
+            color: black;
+            text-align: center;
+        }
+        h1 {
+            margin: 20px 0;
+        }
+        #scorecard {
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            max-width: 90%;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        button {
+            padding: 8px 20px;
+            background-color: #666666;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #333333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Scorekortapp - Rundesystem</h1>
+    <div id="scorecard"></div>
+
+    <script>
+        let scorecard = {};
+        let totalScores = {};
+
+        const totalRounds = 5;
+        let currentRound = 1;
+
+        function startScorecard() {
+            let players = [];
+            for (let i = 0; i < 3; i++) {
+                let playerName = prompt(`Skriv inn navnet på spiller ${i + 1}:`);
+                if (playerName) {
+                    players.push(playerName);
+                } else {
+                    alert("Du må legge til navn på tre spillere.");
+                    return;
+                }
+            }
+            initializeScorecard(players);
+        }
+
+        function initializeScorecard(players) {
+            for (let player of players) {
+                scorecard[player] = 0;
+                totalScores[player] = 0;
+            }
+            updateScorecard();
+        }
+
+        function addScore() {
+            let playerName = prompt("Skriv inn navnet på spilleren:");
+            if (playerName && playerName in scorecard) {
+                let score = parseInt(prompt("Skriv inn antall poeng du vil legge til:"));
+                if (!isNaN(score)) {
+                    scorecard[playerName] += score;
+                    updateScorecard();
+                } else {
+                    alert("Ugyldig poengsum.");
+                }
+            } else {
+                alert("Spilleren er ikke på scorekortet. Legg til spiller først.");
+            }
+        }
+
+        function editScore(playerName) {
+            let newScore = parseInt(prompt(`Skriv inn ny poengsum for ${playerName}:`));
+            if (!isNaN(newScore)) {
+                scorecard[playerName] = newScore;
+                updateScorecard();
+            } else {
+                alert("Ugyldig poengsum.");
+            }
+        }
+
+        function nextRound() {
+            if (currentRound < totalRounds) {
+                currentRound++;
+                for (let player in scorecard) {
+                    totalScores[player] += scorecard[player];
+                    scorecard[player] = 0;
+                }
+                updateScorecard();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            for (let player in scorecard) {
+                totalScores[player] += scorecard[player];
+            }
+            updateScorecard(true);
+        }
+
+        function updateScorecard(finalRound = false) {
+            let scorecardDiv = document.getElementById("scorecard");
+            scorecardDiv.innerHTML = `<h2>Scorekort - Runde ${currentRound}</h2><ul>`;
+            for (let player in scorecard) {
+                scorecardDiv.innerHTML += `<li>${player}: ${scorecard[player]} <button onclick="editScore('${player}')">Endre poeng</button></li>`;
+            }
+            scorecardDiv.innerHTML += "</ul>";
+            
+            if (finalRound) {
+                scorecardDiv.innerHTML += "<h2>Total poengsum</h2><ul>";
+                for (let player in totalScores) {
+                    scorecardDiv.innerHTML += `<li>${player}: ${totalScores[player]}</li>`;
+                }
+                scorecardDiv.innerHTML += "</ul>";
+            } else {
+                scorecardDiv.innerHTML += `<button onclick="nextRound()">Neste runde (${currentRound}/${totalRounds})</button>`;
+            }
+        }
+    </script>
+    <button onclick="startScorecard()">Start runde</button>
+    <button onclick="addScore()">Legg til poeng</button>
+</body>
+</html>
